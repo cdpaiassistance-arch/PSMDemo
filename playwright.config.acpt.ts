@@ -58,17 +58,17 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    // {
-    //   name: 'Google Chrome',
-    //   use:{
-    //     channel: 'chrome',
-    //     viewport: process.env.CI? {width: 1920, height: 1080} : null,  //if execution in GIT viewport will be fill screen if local no viewport
-    //     launchOptions: {
-    //       args: ['--start-maximized'],
-    //       ignoreDefaultArgs: ['--window-size=1280,720']
-    //     }
-    //   }
-    // },
+    {
+      name: 'Google Chrome',
+      use:{
+        channel: 'chrome',
+        viewport: process.env.CI? {width: 1920, height: 1080} : null,  //if execution in GIT viewport will be fill screen if local no viewport
+        launchOptions: {
+          args: ['--start-maximized'],
+          ignoreDefaultArgs: ['--window-size=1280,720']
+        }
+      }
+    },
 
     {
       name: 'Microsoft Edge',
@@ -94,17 +94,17 @@ export default defineConfig({
     //   }
     // },
 
-    // {
-    //   name: 'Firefox',
-    //   use:{
-    //     browserName: 'firefox',
-    //     viewport: {width: 1920, height: 1080},  
-    //     launchOptions: {
-    //       args: [],
-    //       ignoreDefaultArgs: ['--window-size=1280,720']
-    //     }
-    //   }
-    // },
+    {
+      name: 'Firefox',
+      use:{
+        browserName: 'firefox',
+        viewport: {width: 1920, height: 1080},  
+        launchOptions: {
+          args: [],
+          ignoreDefaultArgs: ['--window-size=1280,720']
+        }
+      }
+    },
 
     // {
     //   name: 'Webkit',
