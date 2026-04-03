@@ -1,6 +1,6 @@
 import {Page,Locator} from '@playwright/test';
 import { ElementUtil} from '../utils/ElementUtils';
-import {OrangeHRMDashboardpage} from '../pages/OrangeHRMDashboardpage.ts'
+import {OrangeHRMDashboardpage} from '../pages/OrangeHRMDashboardpage.ts';
 
 export class OrangeHRMLoginpage{
 
@@ -23,11 +23,11 @@ export class OrangeHRMLoginpage{
     async accessloginurl(baseURL : string | undefined) {
         await this.page.goto(baseURL+'/web/index.php/auth/login');
         await this.eleUtil.WaitForPageLoad('load');
-        console.log(`User access URL`);
+        console.log('User access URL');
     }
 
     async iscompanybrandingexists() : Promise<boolean>{
-        console.log(`Wait for visibility of company branding logo`);
+        console.log('Wait for visibility of company branding logo');
         return await this.eleUtil.waitForElementVisibleState(this.companybrandingImage);
     }
 
@@ -36,7 +36,7 @@ export class OrangeHRMLoginpage{
         await this.eleUtil.dofill(this.userdetailsField('Username'),username);
         await this.eleUtil.dofill(this.userdetailsField('Password'),password);
         await this.eleUtil.doclick(this.loginButton);
-        console.log(`User details entered and login button clicked`);
+        console.log('User details entered and login button clicked');
         return new OrangeHRMDashboardpage(this.page);
     }
 }

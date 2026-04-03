@@ -18,8 +18,6 @@ export class OrangeHRMEmployeelistpage{
         this.eleUtil = new ElementUtil(page);
         this.employeelistHeading = page.getByRole('heading', { name: 'Personal Details', level: 6 });
         this.moduleText = (modulename :string) => page.locator(`span:has-text("${modulename}")`).nth(0);
-   
-
     }
 
 
@@ -33,7 +31,4 @@ export class OrangeHRMEmployeelistpage{
         return new OrangeHRMPIMListpage(this.page);
     }
 
-
-    
-
-};
+}

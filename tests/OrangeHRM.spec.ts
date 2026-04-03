@@ -1,10 +1,8 @@
 // import {test,expect} from '@playwright/test';
 import { test , expect } from '../fixtures/basefixture.ts';
-import {OrangeHRMLoginpage} from '../pages/OrangeHRMLoginpage.ts';
-import {OrangeHRMDashboardpage} from '../pages/OrangeHRMDashboardpage.ts';
 import {OrangeHRMPIMListpage} from '../pages/OrangeHRMPIMListpage.ts';
-import {OrangeHRMAddEmployeepage} from '../pages/OrangeHRMAddEmployeepage.ts'
-import {OrangeHRMEmployeelistpage} from '../pages/OrangeHRMEmployeelistpage.ts'
+import {OrangeHRMAddEmployeepage} from '../pages/OrangeHRMAddEmployeepage.ts';
+import {OrangeHRMEmployeelistpage} from '../pages/OrangeHRMEmployeelistpage.ts';
 
 
 test('OrangeHRM Test',
@@ -46,7 +44,7 @@ test('OrangeHRM Test',
         organgehrmaddemployeepage.addempimage();
         await organgehrmaddemployeepage.addempdetails('First Name','PWUser');
         await organgehrmaddemployeepage.addempdetails('Last Name','Test');
-        let empid = await organgehrmaddemployeepage.getempID();
+        const empid = await organgehrmaddemployeepage.getempID();
 
         //Orange GRM Employee List Page
         const organgehrmemployeelistpage:OrangeHRMEmployeelistpage = await organgehrmaddemployeepage.saveempdetails();
@@ -71,7 +69,7 @@ test('Search Modules Test',
         { type: 'Owner', description: 'PSM QA Team' }
     ]},
 
-    async ({ page,orangehrmdashboardpage,moduleserchdata }) => {
+    async ({orangehrmdashboardpage,moduleserchdata }) => {
         //In Progress Proposal Search Test
         await expect.poll(async()=> await orangehrmdashboardpage.isDashboardexists()).toContain('Dashboard');
 
