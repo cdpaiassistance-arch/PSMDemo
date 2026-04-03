@@ -2,8 +2,8 @@ name: Playwright autorun & Generate Reports
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ master ]
+  # push:
+    # branches: [ master ]
   pull_request:
 
 jobs:
