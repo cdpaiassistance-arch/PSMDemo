@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "strict": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "types":["node","@playwright/test"],
+        "allowImportingTsExtensions": true,
+        "noEmit": true
+    },
+    "include": ["tests/**/*.ts","playwright.config.ts"]
+}
