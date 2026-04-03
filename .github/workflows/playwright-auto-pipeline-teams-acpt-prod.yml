@@ -239,7 +239,7 @@ jobs:
           rm -rf allure-results playwright-report playwright-html-report test-results
 
       - name: 🧪 Run PROD tests
-        run: npx playwright test tests/MemberRecipes.spec.ts --config=playwright.config.prod.ts
+        run: npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.prod.ts
         env:
           CI: true
           ALLURE_ENVIRONMENT: PROD
