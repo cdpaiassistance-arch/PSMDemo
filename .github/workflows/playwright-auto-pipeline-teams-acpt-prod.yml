@@ -605,6 +605,7 @@ jobs:
 
       # ========== Microsoft Teams Notification ==========
       - name: 🟦 Send Teams Notification
+        id: teams
         if: ${{ env.TEAMS_WEBHOOK_URL != '' }}
         continue-on-error: true
         env:
@@ -747,6 +748,7 @@ jobs:
           echo "Pipeline Status: ${{ steps.status.outputs.status_text }}"
           echo ""
           echo "Slack: ${{ steps.slack.outcome == 'success' && '✅ Sent' || (steps.slack.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
+          echo "Teams: ${{ steps.teams.outcome == 'success' && '✅ Sent' || (steps.teams.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
           echo "Email: ${{ steps.email.outcome == 'success' && '✅ Sent' || '❌ Failed - Check logs above' }}"
           echo ""
           echo "============================================"
