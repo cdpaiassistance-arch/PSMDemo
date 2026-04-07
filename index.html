@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Playwright Test Reports - PSM Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #34495e; margin-top: 30px; }
+    .env-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0; }
+    .env-section h3 { margin-top: 0; }
+    a { color: #3498db; text-decoration: none; display: inline-block; margin: 5px 10px 5px 0; padding: 8px 16px; background: #ecf0f1; border-radius: 4px; }
+    a:hover { background: #3498db; color: white; }
+    .acpt { border-left: 4px solid #f39c12; }
+    .prod { border-left: 4px solid #e74c3c; }
+    .timestamp { color: #7f8c8d; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🎭 Playwright Test Reports</h1>
+  <p class="timestamp">Last updated: 2026-04-07 19:55:18 UTC</p>
+
+  <div class="env-section" style="border-left: 4px solid #3498db;">
+    <h3>🔍 Static Code Analysis</h3>
+    <a href="./eslint-report/index.html">ESLint Report</a>
+  </div>
+  
+  <div class="env-section acpt">
+    <h3>🔍 ACPT Environment</h3>
+    <a href="./acpt/playwright-report/index.html">Playwright Report</a>
+    <a href="./acpt/playwright-html-report/index.html">HTML Report</a>
+    <a href="./acpt/allure-report/index.html">Allure Report</a>
+  </div>
+              
+  <div class="env-section prod">
+    <h3>🚀 PROD Environment</h3>
+    <a href="./prod/playwright-report/index.html">Playwright Report</a>
+    <a href="./prod/playwright-html-report/index.html">HTML Report</a>
+    <a href="./prod/allure-report/index.html">Allure Report</a>
+  </div>
+</body>
+</html>
