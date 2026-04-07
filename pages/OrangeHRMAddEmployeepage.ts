@@ -25,7 +25,8 @@ export class OrangeHRMAddEmployeepage{
         this.empimgaltText = page.locator('.employee-image');
         this.empImage = page.locator('.oxd-file-input');
         this.empfieldsInput = (fieldname:string) => page.getByRole('textbox', { name: fieldname  });
-        this.empidInput = page.locator('(//input[@class=\'oxd-input oxd-input--active\'])[2]');
+        // eslint-disable-next-line quotes
+        this.empidInput = page.locator(`div.oxd-input-group > div > input.oxd-input`).nth(3);
         this.saveButton = page.getByRole('button', { name: 'Save' });
    
 
@@ -49,6 +50,11 @@ export class OrangeHRMAddEmployeepage{
     }
 
     async getempID():Promise<string | null> {
+       await this.eleUtil.docleartext(this.empidInput);
+       await this.eleUtil.doclick(this.empidInput);
+       const newempid = (Math.floor(1000 + Math.random() * 9000)).toString();
+       console.log('The New emp ID :'+newempid);
+       await this.eleUtil.dofill(this.empidInput,newempid);
        const empid  = await this.eleUtil.dogetinputvalue(this.empidInput);
        console.log('The empID is:'+empid);
        return empid;

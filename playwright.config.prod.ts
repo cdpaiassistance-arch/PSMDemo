@@ -70,18 +70,18 @@ export default defineConfig({
       }
     },
 
-    {
-      name: 'Microsoft Edge',
-      use:{
-        channel: 'msedge',
-        viewport: process.env.CI? {width: 1920, height: 1080} : null,  //if execution in GIT viewport will be fill screen if local no viewport
-        launchOptions: {
-          args: ['--start-maximized'],
-          ignoreDefaultArgs: ['--window-size=1280,720']
-        }
-      }
+    // {
+    //   name: 'Microsoft Edge',
+    //   use:{
+    //     channel: 'msedge',
+    //     viewport: process.env.CI? {width: 1920, height: 1080} : null,  //if execution in GIT viewport will be fill screen if local no viewport
+    //     launchOptions: {
+    //       args: ['--start-maximized'],
+    //       ignoreDefaultArgs: ['--window-size=1280,720']
+    //     }
+    //   }
 
-    },
+    // },
     // {
     //   name: 'Chromium',
     //   use:{

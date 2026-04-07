@@ -94,17 +94,17 @@ export default defineConfig({
     //   }
     // },
 
-    {
-      name: 'Firefox',
-      use:{
-        browserName: 'firefox',
-        viewport: {width: 1920, height: 1080},  
-        launchOptions: {
-          args: [],
-          ignoreDefaultArgs: ['--window-size=1280,720']
-        }
-      }
-    },
+    // {
+    //   name: 'Firefox',
+    //   use:{
+    //     browserName: 'firefox',
+    //     viewport: {width: 1920, height: 1080},  
+    //     launchOptions: {
+    //       args: [],
+    //       ignoreDefaultArgs: ['--window-size=1280,720']
+    //     }
+    //   }
+    // },
 
     // {
     //   name: 'Webkit',
