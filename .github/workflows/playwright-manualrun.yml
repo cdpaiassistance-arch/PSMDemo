@@ -16,7 +16,7 @@ on:
       environment:
         description: 'Select Environment'
         required: true
-        default: 'qa'
+        default: 'acpt'
         type: choice
         options:
           - dev
