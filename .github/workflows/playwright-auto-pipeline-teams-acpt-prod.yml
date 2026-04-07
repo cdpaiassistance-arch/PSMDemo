@@ -51,10 +51,10 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -75,7 +75,7 @@ jobs:
         run: npm run lint:report
 
       - name: 📊 Upload ESLint Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: eslint-report
@@ -106,10 +106,10 @@ jobs:
     
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -161,7 +161,7 @@ jobs:
           done
 
       - name: 📊 Upload HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-report-acpt
@@ -169,7 +169,7 @@ jobs:
           retention-days: 30
 
       - name: 📊 Upload Custom HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-html-report-acpt
@@ -177,7 +177,7 @@ jobs:
           retention-days: 30
 
       - name: 📊 Upload Allure Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: allure-results-acpt
@@ -185,7 +185,7 @@ jobs:
           retention-days: 30
 
       - name: 📸 Upload Test Results (Screenshots/Videos)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: test-results-acpt
@@ -205,10 +205,10 @@ jobs:
     
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -260,7 +260,7 @@ jobs:
           done
 
       - name: 📊 Upload HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-report-prod
@@ -268,7 +268,7 @@ jobs:
           retention-days: 30
 
       - name: 📊 Upload Custom HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: playwright-html-report-prod
@@ -276,7 +276,7 @@ jobs:
           retention-days: 30
 
       - name: 📊 Upload Allure Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: allure-results-prod
@@ -284,7 +284,7 @@ jobs:
           retention-days: 30
 
       - name: 📸 Upload Test Results (Screenshots/Videos)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: test-results-prod
@@ -302,11 +302,11 @@ jobs:
     
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ========== Download ESLint Report ==========
       - name: 📥 Download ESLint Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: eslint-report
           path: github-pages/eslint-report
@@ -314,28 +314,28 @@ jobs:
 
       # ========== Download All Artifacts ==========
       - name: 📥 Download ACPT Playwright Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: playwright-report-acpt
           path: github-pages/acpt/playwright-report
         continue-on-error: true
 
       - name: 📥 Download ACPT HTML Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: playwright-html-report-acpt
           path: github-pages/acpt/playwright-html-report
         continue-on-error: true
 
       - name: 📥 Download PROD Playwright Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: playwright-report-prod
           path: github-pages/prod/playwright-report
         continue-on-error: true
 
       - name: 📥 Download PROD HTML Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: playwright-html-report-prod
           path: github-pages/prod/playwright-html-report
@@ -344,14 +344,14 @@ jobs:
       # ========== Download Allure Results ==========
 
       - name: 📥 Download ACPT Allure Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: allure-results-acpt
           path: allure-results/acpt
         continue-on-error: true
 
       - name: 📥 Download PROD Allure Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: allure-results-prod
           path: allure-results/prod
@@ -495,7 +495,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ========== Determine Overall Status ==========
       - name: 🔍 Determine Pipeline Status
