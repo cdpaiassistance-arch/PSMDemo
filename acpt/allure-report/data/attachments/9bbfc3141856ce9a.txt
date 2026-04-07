@@ -1,0 +1,30 @@
+User access URL
+Wait for visibility of company branding logo
+Waited for the element to be visible
+Waited for the element to be visible
+Filled text :Admin in to element:getByRole('textbox', { name: 'Username' })
+Filled text :admin123 in to element:getByRole('textbox', { name: 'Password' })
+Clicked on element : getByRole('button', { name: 'Login' })
+User details entered and login button clicked
+Wait for visibility of Title bar text
+Waited for the element to be visible
+Get visible text from element:locator('.oxd-topbar-header-title')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("Time at Work")')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("My Actions")')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("Quick Launch")')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("Employees on Leave Today")')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("Employee Distribution by Sub Unit")')
+Wait for visibility of Container Text
+Waited for the element to be visible
+Get visible text from element:locator('p:has-text("Employee Distribution by Location")')
+Access the PIM Module

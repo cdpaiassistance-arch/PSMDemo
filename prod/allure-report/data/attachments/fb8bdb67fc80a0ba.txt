@@ -1,0 +1,8 @@
+User access URL
+Wait for visibility of company branding logo
+Waited for the element to be visible
+Waited for the element to be visible
+Filled text :Admin in to element:getByRole('textbox', { name: 'Username' })
+Filled text :admin123 in to element:getByRole('textbox', { name: 'Password' })
+Clicked on element : getByRole('button', { name: 'Login' })
+User details entered and login button clicked
