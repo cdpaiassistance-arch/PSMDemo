@@ -31,9 +31,9 @@ Waited for the element to be visible
 The text is cleared from input element:getByRole('textbox', { name: 'Search' })
 Clear the search text
 Waited for the element to be visible
-Filled text :Recruitment in to element:getByRole('textbox', { name: 'Search' })
-Search for the module Recruitment
-Check the search result for the module Recruitment
+Filled text :My Info in to element:getByRole('textbox', { name: 'Search' })
+Search for the module My Info
+Check the search result for the module My Info
 Waited for the element to be visible
 The text is cleared from input element:getByRole('textbox', { name: 'Search' })
 Clear the search text

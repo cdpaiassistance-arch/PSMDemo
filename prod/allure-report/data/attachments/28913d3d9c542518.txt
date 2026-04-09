@@ -34,16 +34,16 @@ Waited for the element to be visible
 Clicked on element : getByRole('button', { name: 'Add' })
 Waited for the element to be visible
 Waited for the element to be visible
-Filled text :PWUser-2026-04-08-20:17:47 in to element:getByRole('textbox', { name: 'First Name' })
+Filled text :PWUser-2026-04-09-15:42:22 in to element:getByRole('textbox', { name: 'First Name' })
 Waited for the element to be visible
-Filled text :Test-2026-04-08-20:17:48 in to element:getByRole('textbox', { name: 'Last Name' })
-Waited for the element to be visible
+Filled text :Test-2026-04-09-15:42:22 in to element:getByRole('textbox', { name: 'Last Name' })
 The text is cleared from input element:locator('div.oxd-input-group > div > input.oxd-input').nth(3)
+Waited for the element to be visible
 Clicked on element : locator('div.oxd-input-group > div > input.oxd-input').nth(3)
-The New emp ID :6804
-Filled text :6804 in to element:locator('div.oxd-input-group > div > input.oxd-input').nth(3)
+The New emp ID :1466
+Filled text :1466 in to element:locator('div.oxd-input-group > div > input.oxd-input').nth(3)
 Get the Input value for element:locator('div.oxd-input-group > div > input.oxd-input').nth(3)
-The empID is:6804
+The empID is:1466
 Waited for the element to be visible
 Clicked on element : getByRole('button', { name: 'Save' })
 Waited for the element to be visible
@@ -53,12 +53,12 @@ Wait for visibility of Title bar text
 Waited for the element to be visible
 Search Employee by ID
 Waited for the element to be visible
-Filled text :6804 in to element:locator('div.oxd-input-group > div > input.oxd-input')
+Filled text :1466 in to element:locator('div.oxd-input-group > div > input.oxd-input')
 Clicked on element : getByRole('button', { name: 'Search' })
 Check the Emp ID 
 Waited for the element to be visible
 Get visible text from element:locator('div[role=\'row\'] > div[role=\'cell\']').nth(1)
-The employee ID in the search result is:6804
+The employee ID in the search result is:1466
 Delete the employee record
 Waited for the element to be visible
 Clicked on element : locator('.oxd-icon.bi-trash')

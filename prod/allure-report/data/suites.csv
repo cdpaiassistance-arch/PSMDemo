@@ -1,3 +1,3 @@
 "Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
-"passed","Wed Apr 08 20:19:24 UTC 2026","Wed Apr 08 20:19:39 UTC 2026","14616","","","","","","[PROD] OrangeHRM Test",""
-"passed","Wed Apr 08 20:19:44 UTC 2026","Wed Apr 08 20:19:49 UTC 2026","5025","","","","","","[PROD] Search Modules Test",""
+"passed","Thu Apr 09 15:42:05 UTC 2026","Thu Apr 09 15:42:21 UTC 2026","16351","","","","","","[PROD] OrangeHRM Test",""
+"passed","Thu Apr 09 15:42:30 UTC 2026","Thu Apr 09 15:42:36 UTC 2026","5971","","","","","","[PROD] Search Modules Test",""
