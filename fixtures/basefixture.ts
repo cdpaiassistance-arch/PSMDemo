@@ -20,7 +20,7 @@ const moduleserchdataArray: inprogressmoduleserchdata[] = [
     {moduletitle : 'PIM'},
     {moduletitle : 'Leave'},
     {moduletitle : 'Time'},
-    {moduletitle : 'Recruitment'}
+    {moduletitle : 'My Info'}
 ];
 
 export const test = base.extend <MyFixtures> ({

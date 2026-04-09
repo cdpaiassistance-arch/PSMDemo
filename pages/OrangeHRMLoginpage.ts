@@ -29,6 +29,7 @@ export class OrangeHRMLoginpage{
     async iscompanybrandingexists() : Promise<boolean>{
         console.log('Wait for visibility of company branding logo');
         return await this.eleUtil.waitForElementVisibleState(this.companybrandingImage);
+        
     }
 
     async dologin(username:string,password:string):Promise <OrangeHRMDashboardpage> {
