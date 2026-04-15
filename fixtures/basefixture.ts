@@ -26,6 +26,15 @@ const moduleserchdataArray: inprogressmoduleserchdata[] = [
 export const test = base.extend <MyFixtures> ({
 
     orangehrmdashboardpage : async ({page,baseURL},use,testInfo)=>{
+
+        // const videopath = testInfo.outputPath('screencast.webm');
+        // await page.screencast.start({path:videopath});
+        // await page.screencast.showActions({position: 'top'});
+        await page.screencast.showChapter('Login to Orange HRM',{
+              description: 'Logs in to Orange HRM using valid Login credentials',
+              duration: 2000,
+        });
+
         const orangehrmloginpage = new OrangeHRMLoginpage(page);
         await orangehrmloginpage.accessloginurl(baseURL);
         expect(await orangehrmloginpage.iscompanybrandingexists()).toBeTruthy();

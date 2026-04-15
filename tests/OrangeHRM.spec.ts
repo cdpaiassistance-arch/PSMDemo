@@ -5,7 +5,7 @@ import {OrangeHRMAddEmployeepage} from '../pages/OrangeHRMAddEmployeepage.ts';
 import {OrangeHRMEmployeelistpage} from '../pages/OrangeHRMEmployeelistpage.ts';
 
 
-test('OrangeHRM Test',
+test.only('OrangeHRM Test',
     {tag:['@RegressionTest','@OrangeHRMTest'],
         annotation: [
             {type : 'epic', description: 'Epic 100-Orange HRM'},
@@ -23,6 +23,22 @@ test('OrangeHRM Test',
         // const orangehrmdashboardpage:OrangeHRMDashboardpage = await orangehrmloginpage.dologin('Admin','admin123');
         // await expect(page).toHaveURL(/.*dashboard\/index.*/);
 
+    //     // ✅ 👉 ADD THIS (Observability binding)
+    //     const { endpoint } = await browser.bind('orangehrm-session', {
+    //     workspaceDir: process.cwd(),
+    // });
+
+    // console.log('Observability endpoint:', endpoint);
+
+        
+
+        await page.screencast.showChapter('Dashboard Page',{
+              description: 'Validating Dashboard Page',
+              duration: 2000,
+        }); 
+
+        await page.screencast.showOverlay('<div style="color: red">Recording</div');
+        
 
         //Orange HRM Dashboard Page
         await expect.poll(async()=> await orangehrmdashboardpage.isDashboardexists()).toContain('Dashboard');
@@ -58,6 +74,8 @@ test('OrangeHRM Test',
         await orangehrmpimlistpage.searchemployeeID(empid!);
         await expect.poll(async()=> await orangehrmpimlistpage.isemprecordexists()).toContain(empid!);
         await orangehrmpimlistpage.deleteemprecord();
+
+        // await page.screencast.stop();
     });
 
 test('Search Modules Test',

@@ -22,16 +22,10 @@
 # NOTIFICATION_EMAILS  - Comma-separated recipient emails (any domain)
 # ============================================
 
-name: Playwright Auto Pipeline Teams acpt & Prod
+name: New Playwright Auto Pipeline Teams acpt & Prod
 
 on:
-  # Scheduled runs (cron job)
-  #schedule:
-  #  - cron: '*/30 * * * *'  # Every 30 minutes (minimum effective ~5 min on GitHub)
-
-  # Manual trigger
   workflow_dispatch:
-
   push:
     branches: [main, master, develop]
   pull_request:
@@ -42,713 +36,248 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # ============================================
-  # Static Code Analysis (ESLint)
-  # ============================================
+
+# ============================================
+# 🔍 LINT
+# ============================================
   lint:
-    name: 🔍 ESLint Analysis
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: npm
 
-      - name: 📚 Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: 📁 Create ESLint report directory
-        run: mkdir -p eslint-report
+      - run: mkdir -p eslint-report
 
-      - name: 🔍 Run ESLint
-        id: eslint
+      - name: Run ESLint
         run: npm run lint
         continue-on-error: true
 
-      - name: 📊 Generate ESLint HTML Report
+      - run: npm run lint:report
         if: always()
-        run: npm run lint:report
 
-      - name: 📊 Upload ESLint Report
-        uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: eslint-report
           path: eslint-report/
-          retention-days: 30
 
-      - name: ✅ ESLint Summary
-        if: always()
-        run: |
-          echo "============================================"
-          echo "📊 ESLint Analysis Complete"
-          echo "============================================"
-          if [ "${{ steps.eslint.outcome }}" == "failure" ]; then
-            echo "⚠️ ESLint found issues - check the HTML report"
-          else
-            echo "✅ No ESLint issues found"
-          fi
-          echo "HTML Report: eslint-report/index.html"
-          echo "============================================"
-
-  # ============================================
-  # ACPT Environment Tests
-  # ============================================
+# ============================================
+# 🔍 ACPT TESTS
+# ============================================
   acpt-tests:
-    name: 🔍 ACPT Tests
     runs-on: ubuntu-latest
     needs: lint
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: npm
 
-      - name: 📚 Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      # ✅ Cache Playwright browsers
-      - name: 🗄️ Cache Playwright browsers
-        uses: actions/cache@v4
-        id: playwright-cache
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
 
-      - name: 🎭 Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps
 
-      - name: 🎭 Install Playwright dependencies (if cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps
+      - run: rm -rf allure-results playwright-report playwright-html-report test-results
 
-      # ✅ Clean old results
-      - name: 🧹 Clean previous results
-        run: |
-          rm -rf allure-results playwright-report playwright-html-report test-results
-
-      - name: 🧪 Run ACPT tests
+      - name: Run ACPT tests
         run: npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.acpt.ts
         env:
           CI: true
-          ALLURE_ENVIRONMENT: ACPT
 
-      # ✅ Add environment label to Allure results
-      - name: 🏷️ Add Allure environment info
-        if: always()
-        run: |
-          echo "Environment=ACPT" > allure-results/environment.properties
-          echo "Browser=Google Chrome" >> allure-results/environment.properties
-          echo "Config=playwright.config.acpt.ts" >> allure-results/environment.properties
-          # Add parent suite label to each result file
-          for file in allure-results/*-result.json; do
-            if [ -f "$file" ]; then
-              sed -i 's/"name":"\([^"]*\)"/"name":"[ACPT] \1"/g' "$file" 2>/dev/null || true
-            fi
-          done
-
-      - name: 📊 Upload HTML Report
-        uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: playwright-report-acpt
-          path: playwright-report/
-          retention-days: 30
+          name: acpt-artifacts
+          path: |
+            playwright-report/
+            playwright-html-report/
+            allure-results/
 
-      - name: 📊 Upload Custom HTML Report
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: playwright-html-report-acpt
-          path: playwright-html-report/
-          retention-days: 30
-
-      - name: 📊 Upload Allure Results
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: allure-results-acpt
-          path: allure-results/
-          retention-days: 30
-
-      - name: 📸 Upload Test Results (Screenshots/Videos)
-        uses: actions/upload-artifact@v5
-        if: failure()
-        with:
-          name: test-results-acpt
-          path: test-results/
-          retention-days: 7
-
-  # ============================================
-  # PROD Environment Tests
-  # ============================================
+# ============================================
+# 🚀 PROD TESTS
+# ============================================
   prod-tests:
-    name: 🚀 PROD Tests
     runs-on: ubuntu-latest
     needs: acpt-tests
-    if: always()
-    environment:
-      name: production
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
 
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v5
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: npm
 
-      - name: 📚 Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      # ✅ Cache Playwright browsers
-      - name: 🗄️ Cache Playwright browsers
-        uses: actions/cache@v4
-        id: playwright-cache
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
 
-      - name: 🎭 Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps
 
-      - name: 🎭 Install Playwright dependencies (if cached)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps
+      - run: rm -rf allure-results playwright-report playwright-html-report test-results
 
-      # ✅ Clean old results
-      - name: 🧹 Clean previous results
-        run: |
-          rm -rf allure-results playwright-report playwright-html-report test-results
-
-      - name: 🧪 Run PROD tests
+      - name: Run PROD tests
         run: npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.prod.ts
         env:
           CI: true
-          ALLURE_ENVIRONMENT: PROD
 
-      # ✅ Add environment label to Allure results
-      - name: 🏷️ Add Allure environment info
-        if: always()
-        run: |
-          echo "Environment=PROD" > allure-results/environment.properties
-          echo "Browser=Google Chrome" >> allure-results/environment.properties
-          echo "Config=playwright.config.prod.ts" >> allure-results/environment.properties
-          # Add parent suite label to each result file
-          for file in allure-results/*-result.json; do
-            if [ -f "$file" ]; then
-              sed -i 's/"name":"\([^"]*\)"/"name":"[PROD] \1"/g' "$file" 2>/dev/null || true
-            fi
-          done
-
-      - name: 📊 Upload HTML Report
-        uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: playwright-report-prod
-          path: playwright-report/
-          retention-days: 30
+          name: prod-artifacts
+          path: |
+            playwright-report/
+            playwright-html-report/
+            allure-results/
 
-      - name: 📊 Upload Custom HTML Report
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: playwright-html-report-prod
-          path: playwright-html-report/
-          retention-days: 30
-
-      - name: 📊 Upload Allure Results
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: allure-results-prod
-          path: allure-results/
-          retention-days: 30
-
-      - name: 📸 Upload Test Results (Screenshots/Videos)
-        uses: actions/upload-artifact@v5
-        if: failure()
-        with:
-          name: test-results-prod
-          path: test-results/
-          retention-days: 7
-
-  # ============================================
-  # Publish All Reports to GitHub Pages
-  # ============================================
-  publish-reports:
-    name: 📈 Publish Reports
+# ============================================
+# 📊 REPORT PUBLISH (MODERN)
+# ============================================
+  publish:
     runs-on: ubuntu-latest
     needs: [acpt-tests, prod-tests]
-    if: always() 
-    
+    if: always()
+
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      # ========== Download ESLint Report ==========
-      - name: 📥 Download ESLint Report
-        uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v5
         with:
-          name: eslint-report
-          path: github-pages/eslint-report
-        continue-on-error: true
+          path: reports
 
-      # ========== Download All Artifacts ==========
-      - name: 📥 Download ACPT Playwright Report
-        uses: actions/download-artifact@v5
+      - uses: actions/setup-java@v5
         with:
-          name: playwright-report-acpt
-          path: github-pages/acpt/playwright-report
-        continue-on-error: true
-
-      - name: 📥 Download ACPT HTML Report
-        uses: actions/download-artifact@v5
-        with:
-          name: playwright-html-report-acpt
-          path: github-pages/acpt/playwright-html-report
-        continue-on-error: true
-
-      - name: 📥 Download PROD Playwright Report
-        uses: actions/download-artifact@v5
-        with:
-          name: playwright-report-prod
-          path: github-pages/prod/playwright-report
-        continue-on-error: true
-
-      - name: 📥 Download PROD HTML Report
-        uses: actions/download-artifact@v5
-        with:
-          name: playwright-html-report-prod
-          path: github-pages/prod/playwright-html-report
-        continue-on-error: true
-
-      # ========== Download Allure Results ==========
-
-      - name: 📥 Download ACPT Allure Results
-        uses: actions/download-artifact@v5
-        with:
-          name: allure-results-acpt
-          path: allure-results/acpt
-        continue-on-error: true
-
-      - name: 📥 Download PROD Allure Results
-        uses: actions/download-artifact@v5
-        with:
-          name: allure-results-prod
-          path: allure-results/prod
-        continue-on-error: true
-
-      # ========== Generate Allure Reports PER ENVIRONMENT ==========
-      - name: 📦 Setup Java (for Allure)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
-      - name: 📊 Install Allure CLI
+      - name: Install Allure
         run: |
-          curl -o allure-2.24.0.tgz -Ls https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.24.0/allure-commandline-2.24.0.tgz
-          tar -zxvf allure-2.24.0.tgz
-          # Use absolute path instead of PATH
-          echo "ALLURE_PATH=$PWD/allure-2.24.0/bin/allure" >> $GITHUB_ENV
-          echo "✅ Allure installed at: $PWD/allure-2.24.0/bin/allure"
+          curl -Ls https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.24.0/allure-commandline-2.24.0.tgz | tar zx
+          echo "$PWD/allure-2.24.0/bin" >> $GITHUB_PATH
 
-      - name: 📊 Generate ACPT Allure Report
+      - name: Generate Allure Reports
         run: |
-          echo "📂 Checking ACPT allure-results..."
-          ls -la allure-results/acpt/ || echo "Directory not found"
-          if [ -d "allure-results/acpt" ] && [ "$(ls -A allure-results/acpt 2>/dev/null)" ]; then
-            $ALLURE_PATH generate allure-results/acpt -o github-pages/acpt/allure-report --clean
-            echo "✅ ACPT Allure report generated"
-            ls -la github-pages/acpt/allure-report/
-          else
-            echo "⚠️ No ACPT allure results found or directory empty"
+          mkdir -p site/acpt site/prod
+
+          if [ -d "reports/acpt-artifacts/allure-results" ]; then
+            allure generate reports/acpt-artifacts/allure-results -o site/acpt --clean
           fi
 
-      - name: 📊 Generate PROD Allure Report
-        run: |
-          echo "📂 Checking PROD allure-results..."
-          ls -la allure-results/prod/ || echo "Directory not found"
-          if [ -d "allure-results/prod" ] && [ "$(ls -A allure-results/prod 2>/dev/null)" ]; then
-            $ALLURE_PATH generate allure-results/prod -o github-pages/prod/allure-report --clean
-            echo "✅ PROD Allure report generated"
-            ls -la github-pages/prod/allure-report/
-          else
-            echo "⚠️ No PROD allure results found or directory empty"
+          if [ -d "reports/prod-artifacts/allure-results" ]; then
+            allure generate reports/prod-artifacts/allure-results -o site/prod --clean
           fi
 
-      - name: 📂 Verify all reports before deploy
+      - name: Create index
         run: |
-          echo "📊 Final github-pages structure:"
-          find github-pages -type f -name "index.html" | head -20
-        continue-on-error: true
-
-      # ========== Create Index Page ==========
-      - name: 📝 Create Index Page
-        run: |
-          CURRENT_DATE=$(date '+%Y-%m-%d %H:%M:%S UTC')
-          cat > github-pages/index.html << EOF
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Playwright Test Reports - PSM Demo</title>
-            <style>
-              body { font-family: Arial, sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; }
-              h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-              h2 { color: #34495e; margin-top: 30px; }
-              .env-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0; }
-              .env-section h3 { margin-top: 0; }
-              a { color: #3498db; text-decoration: none; display: inline-block; margin: 5px 10px 5px 0; padding: 8px 16px; background: #ecf0f1; border-radius: 4px; }
-              a:hover { background: #3498db; color: white; }
-              .acpt { border-left: 4px solid #f39c12; }
-              .prod { border-left: 4px solid #e74c3c; }
-              .timestamp { color: #7f8c8d; font-size: 0.9em; }
-            </style>
-          </head>
-          <body>
-            <h1>🎭 Playwright Test Reports</h1>
-            <p class="timestamp">Last updated: ${CURRENT_DATE}</p>
-
-            <div class="env-section" style="border-left: 4px solid #3498db;">
-              <h3>🔍 Static Code Analysis</h3>
-              <a href="./eslint-report/index.html">ESLint Report</a>
-            </div>
-            
-            <div class="env-section acpt">
-              <h3>🔍 ACPT Environment</h3>
-              <a href="./acpt/playwright-report/index.html">Playwright Report</a>
-              <a href="./acpt/playwright-html-report/index.html">HTML Report</a>
-              <a href="./acpt/allure-report/index.html">Allure Report</a>
-            </div>
-                        
-            <div class="env-section prod">
-              <h3>🚀 PROD Environment</h3>
-              <a href="./prod/playwright-report/index.html">Playwright Report</a>
-              <a href="./prod/playwright-html-report/index.html">HTML Report</a>
-              <a href="./prod/allure-report/index.html">Allure Report</a>
-            </div>
-          </body>
-          </html>
+          cat > site/index.html << EOF
+          <h1>Playwright Reports</h1>
+          <ul>
+            <li><a href="./acpt/index.html">ACPT Report</a></li>
+            <li><a href="./prod/index.html">PROD Report</a></li>
+          </ul>
           EOF
 
-      # ========== Deploy to GitHub Pages ==========
-      - name: 🌐 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: github-pages
+          path: site
 
-      # ========== Print Report URLs ==========
-      - name: 🔗 Report URLs
-        run: |
-          echo "============================================"
-          echo "📊 REPORTS PUBLISHED SUCCESSFULLY!"
-          echo "============================================"
-          echo ""
-          echo "🏠 Main Dashboard:"
-          echo "   https://cdpaiassistance-arch.github.io/PSMDemo/"
-          echo ""
-          echo "🔍 ACPT Reports:"
-          echo "   Playwright: https://cdpaiassistance-arch.github.io/PSMDemo/acpt/playwright-report/index.html"
-          echo "   HTML:       https://cdpaiassistance-arch.github.io/PSMDemo/acpt/playwright-html-report/index.html"
-          echo "   Allure:     https://cdpaiassistance-arch.github.io/PSMDemo/acpt/allure-report/index.html"
-          echo ""
-          echo "🚀 PROD Reports:"
-          echo "   Playwright: https://cdpaiassistance-arch.github.io/PSMDemo/prod/playwright-report/index.html"
-          echo "   HTML:       https://cdpaiassistance-arch.github.io/PSMDemo/prod/playwright-html-report/index.html"
-          echo "   Allure:     https://cdpaiassistance-arch.github.io/PSMDemo/prod/allure-report/index.html"
-          echo ""
-          echo "============================================"
-
-  # ============================================
-  # Slack & Email Notifications
-  # ============================================
-  notify:
-    name: 📬 Send Notifications
+  deploy:
+    needs: publish
     runs-on: ubuntu-latest
-    needs: [acpt-tests, prod-tests, publish-reports]
-    if: always()
-    env:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-      NOTIFICATION_EMAILS: ${{ secrets.NOTIFICATION_EMAILS }}
+    permissions:
+      pages: write
+      id-token: write
 
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/deploy-pages@v4
 
-      # ========== Determine Overall Status ==========
-      - name: 🔍 Determine Pipeline Status
+# ============================================
+# 📬 NOTIFICATIONS (TEAMS + EMAIL)
+# ============================================
+  notify:
+    runs-on: ubuntu-latest
+    needs: [acpt-tests, prod-tests, publish]
+    if: always()
+
+    steps:
+
+      - name: Determine Status
         id: status
         run: |
-          # Check job results
-          ACPT_RESULT="${{ needs.acpt-tests.result }}"
-          PROD_RESULT="${{ needs.prod-tests.result }}"
+          ACPT="${{ needs.acpt-tests.result }}"
+          PROD="${{ needs.prod-tests.result }}"
 
-          echo "ACPT: $ACPT_RESULT"
-          echo "PROD: $PROD_RESULT"
-
-          # Determine overall status
-          if [[ "$ACPT_RESULT" == "success" && "$PROD_RESULT" == "success" ]]; then
-            echo "overall_status=success" >> $GITHUB_OUTPUT
-            echo "status_emoji=✅" >> $GITHUB_OUTPUT
-            echo "status_color=#36a64f" >> $GITHUB_OUTPUT
-            echo "status_text=All Tests Passed" >> $GITHUB_OUTPUT
-          elif [[ "$ACPT_RESULT" == "failure" || "$PROD_RESULT" == "failure" ]]; then
-            echo "overall_status=failure" >> $GITHUB_OUTPUT
-            echo "status_emoji=❌" >> $GITHUB_OUTPUT
-            echo "status_color=#dc3545" >> $GITHUB_OUTPUT
-            echo "status_text=Tests Failed" >> $GITHUB_OUTPUT
+          if [[ "$ACPT" == "success" && "$PROD" == "success" ]]; then
+            echo "status=SUCCESS" >> $GITHUB_OUTPUT
+            echo "color=00FF00" >> $GITHUB_OUTPUT
           else
-            echo "overall_status=warning" >> $GITHUB_OUTPUT
-            echo "status_emoji=⚠️" >> $GITHUB_OUTPUT
-            echo "status_color=#ffc107" >> $GITHUB_OUTPUT
-            echo "status_text=Tests Partially Completed" >> $GITHUB_OUTPUT
+            echo "status=FAILED" >> $GITHUB_OUTPUT
+            echo "color=FF0000" >> $GITHUB_OUTPUT
           fi
 
-          # Set individual status emojis
-          if [[ "$ACPT_RESULT" == "success" ]]; then echo "acpt_emoji=✅" >> $GITHUB_OUTPUT; else echo "acpt_emoji=❌" >> $GITHUB_OUTPUT; fi
-          if [[ "$PROD_RESULT" == "success" ]]; then echo "prod_emoji=✅" >> $GITHUB_OUTPUT; else echo "prod_emoji=❌" >> $GITHUB_OUTPUT; fi
-
-      # ========== Slack Notification ==========
-      - name: 💬 Send Slack Notification
-        id: slack
-        if: ${{ env.SLACK_WEBHOOK_URL != '' }}
-        continue-on-error: true
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "attachments": [
-                {
-                  "color": "${{ steps.status.outputs.status_color }}",
-                  "blocks": [
-                    {
-                      "type": "header",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "${{ steps.status.outputs.status_emoji }} Playwright Pipeline: ${{ steps.status.outputs.status_text }}",
-                        "emoji": true
-                      }
-                    },
-                    {
-                      "type": "section",
-                      "fields": [
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Repository:*\n${{ github.repository }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Branch:*\n${{ github.ref_name }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Triggered by:*\n${{ github.actor }}"
-                        },
-                        {
-                          "type": "mrkdwn",
-                          "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "section",
-                      "text": {
-                        "type": "mrkdwn",
-                        "text": "*Test Results by Environment:*\n${{ steps.status.outputs.acpt_emoji }} ACPT: ${{ needs.acpt-tests.result }}\n${{ steps.status.outputs.prod_emoji }} PROD: ${{ needs.prod-tests.result }}"
-                      }
-                    },
-                    {
-                      "type": "section",
-                      "text": {
-                        "type": "mrkdwn",
-                        "text": "*📊 View Reports:*\n<https://cdpaiassistance-arch.github.io/PSMDemo/|Test Reports Dashboard>"
-                      }
-                    },
-                    {
-                      "type": "context",
-                      "elements": [
-                        {
-                          "type": "mrkdwn",
-                          "text": "Workflow: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run #${{ github.run_number }}>"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
-      # ========== Microsoft Teams Notification ==========
-      - name: 🟦 Send Teams Notification
-        id: teams
-        if: ${{ env.TEAMS_WEBHOOK_URL != '' }}
-        continue-on-error: true
-        env:
-          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+      # 🟦 TEAMS
+      - name: Send Teams Notification
+        if: ${{ secrets.TEAMS_WEBHOOK_URL != '' }}
         run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"@type\": \"MessageCard\",
-              \"@context\": \"http://schema.org/extensions\",
-              \"summary\": \"Playwright Pipeline Result\",
-              \"themeColor\": \"${{ steps.status.outputs.status_color }}\",
-              \"title\": \"${{ steps.status.outputs.status_emoji }} Playwright Pipeline: ${{ steps.status.outputs.status_text }}\",
-              \"sections\": [
-                {
-                  \"facts\": [
-                    { \"name\": \"Repository\", \"value\": \"${{ github.repository }}\" },
-                    { \"name\": \"Branch\", \"value\": \"${{ github.ref_name }}\" },
-                    { \"name\": \"Triggered by\", \"value\": \"${{ github.actor }}\" },
-                    { \"name\": \"Commit\", \"value\": \"<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\" },
-                   ]
-                },
-                {
-                   \"markdown\": true,
-                   \"text\": \"**Test Results by Environment**\",
-                   \"facts\": [
-                    { \"name\": \"ACPT\", \"value\": \"${{ steps.status.outputs.acpt_emoji }} ${{ needs.acpt-tests.result }}\" },
-                    { \"name\": \"PROD\", \"value\": \"${{ steps.status.outputs.prod_emoji }} ${{ needs.prod-tests.result }}\" }
-                   ]
-                },
-                {
-                   \"markdown\": true,
-                   \"text\": \"**📊View Reports**<br>[Test Reports Dashboard](https://cdpaiassistance-arch.github.io/PSMDemo/)\"
-                }
-              ],
-              \"potentialAction\": [
-                {  
-                  \"@type\": \"OpenUri\",
-                  \"name\": \"View Workflow Run\",
-                  \"targets\": [
-                    { \"os\": \"default\",
-                      \"uri\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\" 
-                    }
-                  ]
-                }
+          curl -H "Content-Type: application/json" -d "{
+            \"@type\": \"MessageCard\",
+            \"@context\": \"http://schema.org/extensions\",
+            \"themeColor\": \"${{ steps.status.outputs.color }}\",
+            \"title\": \"Pipeline: ${{ steps.status.outputs.status }}\",
+            \"sections\": [{
+              \"facts\": [
+                {\"name\": \"Repo\", \"value\": \"${{ github.repository }}\"},
+                {\"name\": \"Branch\", \"value\": \"${{ github.ref_name }}\"},
+                {\"name\": \"ACPT\", \"value\": \"${{ needs.acpt-tests.result }}\"},
+                {\"name\": \"PROD\", \"value\": \"${{ needs.prod-tests.result }}\"}
               ]
-            }" \
-            "$TEAMS_WEBHOOK_URL"
+            }]
+          }" ${{ secrets.TEAMS_WEBHOOK_URL }}
 
-    # ========== Email Notification ==========
-      - name: 📧 Send Email Notification
-        id: email
-        continue-on-error: true
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: ${{ secrets.MAIL_SERVER }}
-          server_port: ${{ secrets.MAIL_PORT }}
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "${{ steps.status.outputs.status_emoji }} Playwright Tests: ${{ steps.status.outputs.status_text }} - ${{ github.repository }}"
-          to: ${{ secrets.NOTIFICATION_EMAILS }}
-          from: ${{ secrets.MAIL_FROM }}
-          html_body: |
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: ${{ steps.status.outputs.status_color }}; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                .content { background: #f9f9f9; padding: 20px; border-radius: 0 0 8px 8px; }
-                .status-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                .status-table th, .status-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-                .status-table th { background: #ecf0f1; }
-                .success { color: #27ae60; }
-                .failure { color: #e74c3c; }
-                .btn { display: inline-block; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; margin: 5px; }
-                .btn:hover { background: #2980b9; }
-                .footer { text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 12px; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1>${{ steps.status.outputs.status_emoji }} Playwright Pipeline Results</h1>
-                  <h2>${{ steps.status.outputs.status_text }}</h2>
-                </div>
-                <div class="content">
-                  <h3>Pipeline Information</h3>
-                  <table class="status-table">
-                    <tr><th>Repository</th><td>${{ github.repository }}</td></tr>
-                    <tr><th>Branch</th><td>${{ github.ref_name }}</td></tr>
-                    <tr><th>Triggered by</th><td>${{ github.actor }}</td></tr>
-                    <tr><th>Commit</th><td><a href="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}">${{ github.sha }}</a></td></tr>
-                    <tr><th>Run Number</th><td>#${{ github.run_number }}</td></tr>
-                  </table>
-
-                  <h3>Test Results by Environment</h3>
-                  <table class="status-table">
-                    <tr>
-                      <th>Environment</th>
-                      <th>Status</th>
-                    </tr>
-                    <tr>
-                      <td>🔍 ACPT</td>
-                      <td class="${{ needs.acpt-tests.result == 'success' && 'success' || 'failure' }}">${{ needs.acpt-tests.result }}</td>
-                    </tr>
-                    <tr>
-                      <td>🚀 PROD</td>
-                      <td class="${{ needs.prod-tests.result == 'success' && 'success' || 'failure' }}">${{ needs.prod-tests.result }}</td>
-                    </tr>
-                  </table>
-
-                  <h3>📊 View Reports</h3>
-                  <p>
-                    <a href="https://cdpaiassistance-arch.github.io/PSMDemo/" class="btn">📊 Reports Dashboard</a>
-                    <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" class="btn">🔗 View Workflow Run</a>
-                  </p>
-
-                  <h4>Individual Environment Reports:</h4>
-                  <ul>
-                    <li><strong>ACPT:</strong> <a href="https://cdpaiassistance-arch.github.io/PSMDemo/acpt/allure-report/">Allure</a> | <a href="https://cdpaiassistance-arch.github.io/PSMDemo/acpt/playwright-report/">Playwright</a> | <a href="https://cdpaiassistance-arch.github.io/PSMDemo/acpt/playwright-html-report/">Playwright HTML</a></li>
-                    <li><strong>PROD:</strong> <a href="https://cdpaiassistance-arch.github.io/PSMDemo/prod/allure-report/">Allure</a> | <a href="https://cdpaiassistance-arch.github.io/PSMDemo/prod/playwright-report/">Playwright</a> | <a href="https://cdpaiassistance-arch.github.io/PSMDemo/prod/playwright-html-report/">Playwright HTML</a></li>
-                  </ul>
-                </div>
-                <div class="footer">
-                  <p>This is an automated notification from GitHub Actions.</p>
-                  <p>Repository: ${{ github.repository }} | Run #${{ github.run_number }}</p>
-                </div>
-              </div>
-            </body>
-            </html>
-
-      - name: ✅ Notifications Summary
+      # 📧 EMAIL (NO DEPRECATED ACTION)
+      - name: Send Email
+        if: ${{ secrets.MAIL_SERVER != '' }}
         run: |
-          echo "============================================"
-          echo "📬 NOTIFICATION STATUS"
-          echo "============================================"
-          echo ""
-          echo "Pipeline Status: ${{ steps.status.outputs.status_text }}"
-          echo ""
-          echo "Slack: ${{ steps.slack.outcome == 'success' && '✅ Sent' || (steps.slack.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
-          echo "Teams: ${{ steps.teams.outcome == 'success' && '✅ Sent' || (steps.teams.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
-          echo "Email: ${{ steps.email.outcome == 'success' && '✅ Sent' || '❌ Failed - Check logs above' }}"
-          echo ""
-          echo "============================================"
+          sudo apt-get update
+          sudo apt-get install -y msmtp mailutils
+
+          cat > ~/.msmtprc <<EOF
+          defaults
+          auth on
+          tls on
+          tls_trust_file /etc/ssl/certs/ca-certificates.crt
+
+          account default
+          host ${{ secrets.MAIL_SERVER }}
+          port ${{ secrets.MAIL_PORT }}
+          from ${{ secrets.MAIL_FROM }}
+          user ${{ secrets.MAIL_USERNAME }}
+          password ${{ secrets.MAIL_PASSWORD }}
+          EOF
+
+          chmod 600 ~/.msmtprc
+
+          echo "Pipeline: ${{ steps.status.outputs.status }}
+ACPT: ${{ needs.acpt-tests.result }}
+PROD: ${{ needs.prod-tests.result }}
+
+Reports:
+https://cdpaiassistance-arch.github.io/PSMDemo/
+" | mail -s "Playwright Pipeline Result" ${{ secrets.NOTIFICATION_EMAILS }}

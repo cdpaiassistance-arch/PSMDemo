@@ -7,49 +7,36 @@
     "allure:deletereports": "rimraf allure-report allure-results",
     "allure:generate": "npx allure generate allure-results --clean -o allure-report",
     "allure:open": "npx allure open allure-report",
-
     "clean": "rimraf atest-results playwight-report",
     "test": "npm run clean && playwright test",
-
     "trace": "npx playwright show-trace",
     "showreport": "npx playwright show-report --port 9333",
-
     "debug": "npx playwright test --debug",
-
     "OrangeHRMTest": "npx playwright test --grep @OrangeHRMTest",
     "SearchOrangemodulesTest": "npx playwright test --grep @SearchModulesTest",
     "all": "npm run OrangeHRMTest && npm run SearchOrangemodulesTest",
-
     "all:singleworker": "npx playwright test tests/OrangeHRM.spec.ts --workers=1",
-
     "dev:chrome": "npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.dev.ts --project=\"Google Chrome\"",
     "dev:edge": "npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.dev.ts --project=\"Microsoft Edge\"",
     "dev:firefox": "npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.dev.ts --project=\"Firefox\"",
     "dev:webkit": "npx playwright test tests/OrangeHRM.spec.ts --config=playwright.config.dev.ts --project=\"Webkit\"",
-
     "acpt:chrome": "npx playwright test --config=playwright.config.acpt.ts --project=\"Google Chrome\"",
     "acpt:edge": "npx playwright test --config=playwright.config.acpt.ts --project=\"Microsoft Edge\"",
     "acpt:firefox": "npx playwright test --config=playwright.config.acpt.ts --project=\"Firefox\"",
     "acpt:webkit": "npx playwright test --config=playwright.config.acpt.ts --project=\"Webkit\"",
-
     "acpt:OrangeHRMTestTest:chrome": "npx playwright test --config=playwright.config.acpt.ts --project=\"Google Chrome\" --grep @OrangeHRMTest",
     "acpt:OrangeHRMTestTest:edge": "npx playwright test --config=playwright.config.acpt.ts --project=\"Microsoft Edge\" --grep @OrangeHRMTest",
     "acpt:OrangeHRMTestTest:firefox": "npx playwright test --config=playwright.config.acpt.ts --project=\"Firefox\" --grep @OrangeHRMTest",
     "acpt:OrangeHRMTestTest:webkit": "npx playwright test --config=playwright.config.acpt.ts --project=\"Webkit\" --grep @OrangeHRMTest",
-
     "act:OrangeHRMTest:all": "npm run acpt:OrangeHRMTest:chrome && npm run acpt:OrangeHRMTest:edge && npm run acpt:OrangeHRMTest:firefox",
-
     "acpt:SearchInprogressTest:chrome": "npx playwright test --config=playwright.config.acpt.ts --project=\"Google Chrome\" --grep @SearchModulesTest",
     "acpt:SearchInprogressTest:edge": "npx playwright test --config=playwright.config.acpt.ts --project=\"Microsoft Edge\" --grep @SearchModulesTest",
     "acpt:SearchInprogressTest:firefox": "npx playwright test --config=playwright.config.acpt.ts --project=\"Firefox\" --grep @SearchModulesTest",
     "acpt:SearchInprogressTest:webkit": "npx playwright test --config=playwright.config.acpt.ts --project=\"Webkit\" --grep @SearchModulesTest",
-
     "act:SearchInprogressTest:all": "npm run acpt:SearchInprogressTest:chrome && npm run acpt:SearchInprogressTest:edge && npm run acpt:SearchInprogressTest:firefox",
-    
     "smoke": "npx playwright test tests/OrangeHRM.spec.ts --grep @smokeTest",
     "regression": "npx playwright test tests/OrangeHRM.spec.ts --grep @regressionTest",
     "smoke:regression": "npm run smoke && npm run regression",
-
     "lint": "eslint . --ext .ts,.js --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "lint:report": "eslint . --ext .ts,.js -f html -o eslint-report/index.html || true",
@@ -60,6 +47,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@playwright/cli": "^0.1.7",
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
