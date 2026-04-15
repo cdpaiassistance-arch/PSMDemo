@@ -278,6 +278,33 @@ jobs:
 ACPT: ${{ needs.acpt-tests.result }}
 PROD: ${{ needs.prod-tests.result }}
 
+- name: Send Email
+  if: ${{ secrets.MAIL_SERVER != '' }}
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y msmtp mailutils
+
+    cat > ~/.msmtprc <<EOF
+    defaults
+    auth on
+    tls on
+    tls_trust_file /etc/ssl/certs/ca-certificates.crt
+
+    account default
+    host ${{ secrets.MAIL_SERVER }}
+    port ${{ secrets.MAIL_PORT }}
+    from ${{ secrets.MAIL_FROM }}
+    user ${{ secrets.MAIL_USERNAME }}
+    password ${{ secrets.MAIL_PASSWORD }}
+    EOF
+
+    chmod 600 ~/.msmtprc
+
+    cat <<EOF | mail -s "Playwright Pipeline Result" ${{ secrets.NOTIFICATION_EMAILS }}
+Pipeline: ${{ steps.status.outputs.status }}
+ACPT: ${{ needs.acpt-tests.result }}
+PROD: ${{ needs.prod-tests.result }}
+
 Reports:
 https://cdpaiassistance-arch.github.io/PSMDemo/
-" | mail -s "Playwright Pipeline Result" ${{ secrets.NOTIFICATION_EMAILS }}
+EOF
