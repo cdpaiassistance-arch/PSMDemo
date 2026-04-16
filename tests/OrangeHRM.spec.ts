@@ -5,7 +5,7 @@ import {OrangeHRMAddEmployeepage} from '../pages/OrangeHRMAddEmployeepage.ts';
 import {OrangeHRMEmployeelistpage} from '../pages/OrangeHRMEmployeelistpage.ts';
 
 
-test('OrangeHRM Test',
+test.only('OrangeHRM Test',
     {tag:['@RegressionTest','@OrangeHRMTest'],
         annotation: [
             {type : 'epic', description: 'Epic 100-Orange HRM'},
